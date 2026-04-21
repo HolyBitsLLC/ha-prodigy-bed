@@ -24,8 +24,8 @@ BUTTON_ORDER = (
     "bed_bluetooth_connect",
     "bed_bluetooth_disconnect",
     "bed_preset_flat",
-    "bed_preset_zero-g",
-    "bed_preset_anti-snore",
+    "bed_preset_zero_g",
+    "bed_preset_anti_snore",
     "bed_preset_memory_1",
     "bed_preset_memory_2",
     "bed_preset_memory_3",
@@ -39,7 +39,7 @@ BUTTON_ORDER = (
     "bed_foot_up",
     "bed_foot_down",
     "bed_stop",
-    "bed_under-bed_lights_toggle",
+    "bed_under_bed_lights_toggle",
 )
 
 BUTTON_ORDER_INDEX = {object_id: index for index, object_id in enumerate(BUTTON_ORDER)}
@@ -57,8 +57,8 @@ BUTTON_ICONS = {
     "bed_bluetooth_connect": "mdi:bluetooth-connect",
     "bed_bluetooth_disconnect": "mdi:bluetooth-off",
     "bed_preset_flat": "mdi:bed-empty",
-    "bed_preset_zero-g": "mdi:rotate-orbit",
-    "bed_preset_anti-snore": "mdi:sleep",
+    "bed_preset_zero_g": "mdi:rotate-orbit",
+    "bed_preset_anti_snore": "mdi:sleep",
     "bed_preset_memory_1": "mdi:numeric-1-box",
     "bed_preset_memory_2": "mdi:numeric-2-box",
     "bed_preset_memory_3": "mdi:numeric-3-box",
@@ -72,5 +72,5 @@ BUTTON_ICONS = {
     "bed_foot_up": "mdi:arrow-up-bold-circle-outline",
     "bed_foot_down": "mdi:arrow-down-bold-circle-outline",
     "bed_stop": "mdi:stop-circle",
-    "bed_under-bed_lights_toggle": "mdi:lightbulb",
+    "bed_under_bed_lights_toggle": "mdi:lightbulb",
 }

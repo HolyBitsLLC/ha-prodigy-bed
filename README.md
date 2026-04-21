@@ -28,3 +28,19 @@ larger recall surface.
 - Mirror selected sensors and connectivity state from the bridge
 - Add curated entities for massage controls
 - Add richer device metadata and diagnostics
+
+## Local k3s smoke test
+
+For a disposable Home Assistant smoke environment on the existing `k3s`
+context, apply [k8s/local-k3s/home-assistant-smoke.yaml](k8s/local-k3s/home-assistant-smoke.yaml)
+and port-forward the service:
+
+```bash
+kubectl --context k3s apply -f k8s/local-k3s/home-assistant-smoke.yaml
+kubectl --context k3s -n home-assistant-local rollout status deploy/home-assistant
+kubectl --context k3s -n home-assistant-local port-forward svc/home-assistant 8123:8123
+```
+
+The manifest installs `custom_components/prodigy_bed` from this repo's `main`
+branch into `/config/custom_components` on startup so the local Home Assistant
+pod exercises the same integration payload that ships publicly.

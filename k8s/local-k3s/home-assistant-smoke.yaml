@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-assistant-local
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-config
+  namespace: home-assistant-local
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-assistant-config-seed
+  namespace: home-assistant-local
+data:
+  configuration.yaml: |
+    default_config:
+
+    http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 10.42.0.0/16
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  namespace: home-assistant-local
+  labels:
+    app: home-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-assistant
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      initContainers:
+        - name: seed-config
+          image: docker.io/busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              mkdir -p /config
+              if [ ! -f /config/configuration.yaml ]; then
+                cp /config-template/configuration.yaml /config/configuration.yaml
+              fi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: config-template
+              mountPath: /config-template
+        - name: install-prodigy-bed
+          image: docker.io/alpine:3.21
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              PRODIGY_BED_REF="${PRODIGY_BED_REF:-main}"
+              echo "Deploying prodigy_bed from ${PRODIGY_BED_REF}..."
+              apk add --no-cache wget tar
+              mkdir -p /config/custom_components
+              rm -rf /config/custom_components/prodigy_bed
+              wget -q -O /tmp/prodigy-bed.tar.gz "https://github.com/HolyBitsLLC/ha-prodigy-bed/archive/refs/heads/${PRODIGY_BED_REF}.tar.gz"
+              tar -xzf /tmp/prodigy-bed.tar.gz -C /tmp
+              SRC_DIR="$(find /tmp -maxdepth 4 -type d -path '*/custom_components/prodigy_bed' | head -1)"
+              if [ -z "$SRC_DIR" ]; then
+                echo "Failed to locate prodigy_bed component in archive"
+                exit 1
+              fi
+              cp -R "$SRC_DIR" /config/custom_components/prodigy_bed
+              rm -f /tmp/prodigy-bed.tar.gz
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      containers:
+        - name: home-assistant
+          image: docker.io/homeassistant/home-assistant:2026.3.0
+          ports:
+            - containerPort: 8123
+              name: http
+          env:
+            - name: TZ
+              value: America/Chicago
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8123
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: home-assistant-config
+        - name: config-template
+          configMap:
+            name: home-assistant-config-seed
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-assistant
+  namespace: home-assistant-local
+spec:
+  selector:
+    app: home-assistant
+  ports:
+    - port: 8123
+      targetPort: 8123
+      name: http
