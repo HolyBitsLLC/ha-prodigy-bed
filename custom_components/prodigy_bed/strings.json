@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Prodigy bridge",
+        "description": "Connect to the ESPHome bridge that proxies the Prodigy bed.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "encryption_key": "ESPHome API encryption key",
+          "expected_name": "Expected ESPHome node name"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the ESPHome bridge.",
+      "invalid_bridge": "The target ESPHome node does not expose the required Prodigy buttons."
+    },
+    "abort": {
+      "already_configured": "This Prodigy bridge is already configured."
+    }
+  }
+}

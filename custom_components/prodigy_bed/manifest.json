@@ -1,0 +1,14 @@
+{
+  "domain": "prodigy_bed",
+  "name": "Prodigy Bed",
+  "config_flow": true,
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "loggers": [
+    "aioesphomeapi"
+  ],
+  "requirements": [
+    "aioesphomeapi>=31.0.0"
+  ],
+  "version": "0.1.0"
+}
